@@ -4,7 +4,7 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of StatComp is to ...
+This project studies the scale invariance of random matrices, it includes a series of random matrix generation, eigenvalue spectrum, and plotting function.
 
 ## Installation
 
