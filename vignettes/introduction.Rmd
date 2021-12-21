@@ -1,0 +1,33 @@
+---
+title: "introduction"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Project
+
+This project studies the scale invariance of random matrices, it includes a series of random matrix generation, eigenvalue spectrum, and plotting function.
+
+
+## ERM
+
+Generate Euclidean random matrix。
+An N×N Euclidean random matrix $A$ is defined with the help of an arbitrary deterministic function $f(r, r′)$ and of N points ${r_i}$ randomly distributed in a region V of d-dimensional Euclidean space. The element $A_{ij}$ of the matrix is equal to $f(ri, rj): A_{ij} = f(r_i, r_j)$.
+
+## eigen_spectrum
+
+computation the eigen spectrum of the random matrix, you can specify the input random matrix type and output the eigenvalue probability density function of the random matrix.
+
+## log_spectrum
+
+computation the log eigen spectrum of the random matrix, you can specify the input random matrix type and output the logarithmic eigenvalue probability density function's logarithmic of the random matrix.

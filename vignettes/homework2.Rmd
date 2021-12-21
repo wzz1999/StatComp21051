@@ -1,0 +1,19 @@
+---
+title: "homework2"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{homework2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Question
+Use knitr to produce at least 3 examples (texts, figures,
+tables).

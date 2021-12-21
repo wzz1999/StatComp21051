@@ -1,0 +1,21 @@
+Package: StatComp21051
+Title: Package
+Version: 0.0.0.9000
+Author: Zezhen Wang
+Maintainer: Zezhen Wang <wzz1999@mail.ustc.edu.cn>
+Description: This project studies the scale invariance of random matrices, it includes a series of random matrix generation, eigenvalue spectrum, and plotting function.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Imports: 
+    microbenchmark,
+    knitr,
+    rmarkdown,
+    Ball,
+    boot,
+    FNN,
+    energy,
+    bootstrap
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
+VignetteBuilder: knitr
