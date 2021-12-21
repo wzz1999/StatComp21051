@@ -1,0 +1,1042 @@
+---
+title: "homework"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{homework}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Question
+Use knitr to produce at least 3 examples (texts, figures,
+tables).
+
+## Answer
+example1:
+figures: 
+
+```{r}
+x = 1:10
+y = 1:10
+plot(x,y,type = "l")
+```
+
+\
+example2:
+table: 
+```{r}
+score = c(1,2,3,2,1,1,5,6,4,5,1)
+table(score) 
+```
+
+\
+example3:
+time-series:
+```{r}
+ts(1:47, frequency = 12, start = c(1959, 2))
+
+```
+
+## Question
+Exercises 3.4, 3.11, and 3.20 (pages 94-96, Statistical
+Computating with R).
+
+## Answer
+3.4:
+Develop an algorithm to generate random samples from a Rayleigh(σ) distribution. Generate Rayleigh(σ) samples for several choices of σ > 0 and check
+that the mode of the generated samples is close to the theoretical mode σ
+(check the histogram).
+
+当一个随机二维向量的两个分量呈独立的、有着相同的方差的正态分布时，这个向量的模呈瑞利分布。
+```{r}
+n = 10000
+for (i in 0:2){
+sd = 10^i
+x = rnorm(n, mean = 0, sd = sd)
+y = rnorm(n, mean = 0, sd = sd)
+ray = sqrt(x^2+y^2)
+hist(ray,freq = F,breaks=100)
+print(sd)
+}
+
+```
+
+\
+3.11:
+Generate a random sample of size 1000 from a normal location mixture. The
+components of the mixture have N(0, 1) and N(3, 1) distributions with mixing
+probabilities p1 and p2 = 1 − p1. Graph the histogram of the sample with
+density superimposed, for p1 = 0.75. Repeat with different values for p1
+and observe whether the empirical distribution of the mixture appears to be
+bimodal. Make a conjecture about the values of p1 that produce bimodal
+mixtures.
+```{r}
+n=1000
+breaks = 50
+x <- numeric(n)
+p = 0.75
+for (i in 1:1000){
+  if (p <runif(1)){
+    x[i] = rnorm(1, mean = 0, sd = 1)
+  }else{x[i] = rnorm(1, mean = 3, sd = 1)}
+}
+hist(x,freq = F,breaks=breaks)
+
+p = 0.5
+for (i in 1:1000){
+  if (p <runif(1)){
+    x[i] = rnorm(1, mean = 0, sd = 1)
+  }else{x[i] = rnorm(1, mean = 3, sd = 1)}
+}
+hist(x,freq = F,breaks=breaks)
+
+p = 0.9
+for (i in 1:1000){
+  if (p <runif(1)){
+    x[i] = rnorm(1, mean = 0, sd = 1)
+  }else{x[i] = rnorm(1, mean = 3, sd = 1)}
+}
+hist(x,freq = F,breaks=breaks)
+```
+
+估计产生双峰的临界值在0.75
+
+\
+3.20:
+A compound Poisson process is a stochastic process {X(t), t ≥ 0} that can be
+represented as the random sum X(t) = N i=1 (t) Yi, t ≥ 0, where {N(t), t ≥ 0}
+is a Poisson process and Y1, Y2, . . . are iid and independent of {N(t), t ≥ 0}.
+Write a program to simulate a compound Poisson(λ)–Gamma process (Y has
+a Gamma distribution). Estimate the mean and the variance of X(10) for
+several choices of the parameters and compare with the theoretical values.
+Hint: Show that E[X(t)] = λtE[Y1] and V ar(X(t)) = λtE[Y12].
+```{r}
+myfun <- function(lambda, t0, alpha, beta) {
+upper <- 100
+pp <- numeric(10000)
+for (i in 1:10000) {
+N <- rpois(1, lambda * upper)
+Un <- runif(N, 0, upper) #unordered arrival times
+Sn <- sort(Un) #arrival times
+Vu <- rgamma(N, alpha, beta)
+n <- min(which(Sn > t0)) #arrivals+1 in [0, t0]
+#pp[i] <- n - 1 #arrivals in [0, t0]
+pp[i] <- sum(Vu[1:n])
+}
+print(mean(pp))
+print(var(pp))
+}
+```
+```{r}
+lambda <- 4
+t0 <- 5
+alpha <- 1 
+beta <- 2
+myfun(lambda, t0, alpha,beta) #输出模拟方差和期望
+lambda*t0*alpha/beta #理论期望
+lambda*t0*(alpha+1)*alpha/beta/beta  #理论方差
+```
+不同参数条件
+```{r}
+lambda <- 3
+t0 <- 3
+alpha <- 7
+beta <- 2
+myfun(lambda, t0, alpha,beta) #输出模拟方差和期望
+lambda*t0*alpha/beta #理论期望
+lambda*t0*(alpha+1)*alpha/beta/beta  #理论方差
+```
+
+## Question
+5.4:
+Write a function to compute a Monte Carlo estimate of the Beta(3, 3) cdf,
+and use the function to estimate F(x) for x = 0.1, 0.2, . . ., 0.9. Compare the
+estimates with the values returned by the pbeta function in R.
+
+## Answer
+
+Sample the Beta(3,3) distribution from 0 to x with Monte Carlo, and then average it
+```{r}
+mypbeta <- function(x) {
+m <- 10000
+y <- runif(m, min=0, max=x)
+theta.hat <- x*mean(dbeta(y,3,3))
+theta.hat
+}
+
+my = 0
+p = 0
+x = 0
+for (i in 1:9){
+  my[i] = mypbeta(i/10)
+  p[i] = pbeta(i/10,3,3)
+  x[i] = i/10
+}
+data.frame("x" = x,"mypbate" = my,"pbeta" = p) 
+```
+
+## Question
+5.9
+
+## Answer
+The Rayleigh density $[156, Ch. 18]$ is
+$$
+\begin{align*}
+f(x)=\frac{x}{\sigma^{2}} e^{-x^{2} /\left(2 \sigma^{2}\right)}, \quad x \geq 0, \sigma>0
+\end{align*}
+$$
+Develop an algorithm to generate random samples from a Rayleigh $(\sigma)$ distribution. Generate Rayleigh $(\sigma)$ samples for several choices of $\sigma>0$ 
+
+```{r}
+Rayleigh <- function(sigma){
+  u <- runif(10000)
+  x <- sigma * sqrt(-2*log(u))
+}
+
+ray <- function(sigma){
+  u <- runif(10000)
+  u2 <- runif(10000)
+  x1 <- sigma * sqrt(-2*log(u))
+  x2 <- sigma * sqrt(-2*log(1-u))
+  x3 <- sigma * sqrt(-2*log(u2))
+  var1 = var((x1+x2)/2)
+  var2 = var((x1+x3)/2)
+  k = 100*(1 - var1/var2)
+  print(paste(k,"%"))
+}
+
+ray(1)
+```
+
+
+
+## Question
+5.13 Find two importance functions f1 and f2 ...
+
+## Answer
+
+importance functions 1: $$ f_1(x) = \frac{1}{\sqrt{2\pi}}e^{-x^2/2} \qquad -\infty<x<\infty$$
+
+importance functions 2: $$ f_2(x) = xe^{-x^2/2} \qquad 1<x<\infty$$
+
+importance functions 2 $f_2(x)$ should produce the smaller variance because $$ \frac{g(x)}{f_1(x)} = X^2 \qquad 1<x$$ 
+$$ \frac{g(x)}{f_1(x)} = 0 \qquad x<1$$
+
+$$ \frac{g(x)}{f_2(x)} = \frac{x}{\sqrt{2\pi}} \qquad 1<x$$
+
+$$ \frac{g(x)}{f_2(x)} = 0 \qquad 0<x<1$$
+
+The variance of $x^2$ Is bigger than the variance of $x$
+
+## Question
+5.14 Obtain a Monte Carlo estimate by importance sampling ...
+
+## Answer
+
+using importance functions  $$ f(x) = \frac{1}{\sqrt{2\pi}}e^{-x^2/2} \qquad -\infty<x<\infty$$
+
+$$ \frac{g(x)}{f(x)} = \frac{x}{\sqrt{2\pi}} \qquad 1<x$$
+
+$$ \frac{g(x)}{f(x)} = 0 \qquad 0<x<1$$
+```{r}
+gf <- function(x){
+  if (x>1){
+  y <- x^2
+  }
+  if (x<1){
+  y <- 0
+  }
+  y
+}
+
+n = 10000
+x = rnorm(n)
+y = 0
+for (i in 1:n){
+  y[i] = gf(x[i])
+}
+mean(y)
+```
+
+## Question
+A—21051—2021—10-14
+6.5:
+Suppose a 95% symmetric t-interval is applied to estimate a mean, but the
+sample data are non-normal. Then the probability that the confidence interval
+covers the mean is not necessarily equal to 0.95. Use a Monte Carlo experiment
+to estimate the coverage probability of the t-interval for random samples of
+χ2(2) data with sample size n = 20. Compare your t-interval results with the
+simulation results in Example 6.4. (The t-interval should be more robust to
+departures from normality than the interval for variance.)
+
+## Answer
+
+Sample the chisq(2) distribution with sample size n = 20, and then compute the  95% symmetric t-interval,then compute the probability of that expectation 2 is in interval.
+```{r}
+p = 0
+UCL = 0
+for (i in 1:10000){
+  n <- 20
+  x = rchisq(n,2)
+  interval = t.test(x)$conf[1:2]
+  mean = mean(x)
+  p[i] = 0
+  if (interval[1]<2 && 2<interval[2]){
+    p[i] = 1
+  }
+}
+mean(p)
+
+for (i in 1:10){
+  n <- 20
+  x = rchisq(n,2)
+  interval = t.test(x)$conf[1:2]
+  print(interval)
+}
+```
+
+The t-interval is more robust.
+## Question
+6.A:Use Monte Carlo simulation to investigate whether the empirical Type I error rate of the t-test is approximately equal to the nominal significance level
+α, when the sampled population is non-normal. The t-test is robust to mild
+departures from normality. Discuss the simulation results for the cases where
+the sampled population is (i) χ2(1), (ii) Uniform(0,2), and (iii) Exponential(rate=1). In each case, test H0 : µ = µ0 vs H0 : µ = µ0, where µ0 is the
+mean of χ2(1), Uniform(0,2), and Exponential(1), respectively.
+
+## Answer
+
+
+```{r}
+Ierror = function(alpha){
+  n <- 200
+  mu0 <- 500
+  sigma <- 100
+  m <- 10000 #number of replicates
+  p1 <- numeric(m) #storage for p-values
+  p2 <- numeric(m)
+  p3 <- numeric(m)
+  for (j in 1:m) {
+    x1 <- rchisq(n,1)
+    x2 <- runif(n, min=0, max=2)
+    x3 <- rexp(n, rate=1) 
+    ttest1 <- t.test(x1, alternative = c("two.sided", "less", "greater"), mu = 1)
+    ttest2 <- t.test(x2, alternative = c("two.sided", "less", "greater"), mu = 1)
+    ttest3 <- t.test(x3, alternative = c("two.sided", "less", "greater"), mu = 1)
+    p1[j] <- ttest1$p.value
+    p2[j] <- ttest2$p.value
+    p3[j] <- ttest3$p.value
+  }
+  p1.hat <- mean(p1 < alpha)
+  p2.hat <- mean(p2 < alpha)
+  p3.hat <- mean(p3 < alpha)
+  p = p1.hat
+  p[2] = p2.hat
+  p[3] = p3.hat
+  p
+}
+p1 = 0
+p2 = 0
+p3 = 0
+alpha = 0
+for (i in 1:10){
+  alpha[i] = i/100
+  p = Ierror(alpha[i])
+  p1[i] = p[1]
+  p2[i] = p[2]
+  p3[i] = p[3]
+}
+data.frame("alpha" = alpha,"chisq" = p1,"unif" = p2,"exp"=p3)
+```
+when the sampled population is non-normal,The uniform distribution's test type 1 error is closest to alpha, followed by the exponential distribution, and finally the Chi-square distribution
+
+
+## Question
+If we obtain the powers for two methods under a particular
+simulation setting with 10,000 experiments: say, 0.651 for one
+method and 0.676 for another method. We want to know if the
+powers are different at 0.05 level.
+1 What is the corresponding hypothesis test problem?
+2 What test should we use? Z-test, two-sample t-test, paired-t
+test or McNemar test? Why?
+3 Please provide the least necessary information for hypothesis
+testing
+
+## Answer
+
+1.h0：power1 = power2 
+  h1: power1 $\neq$ power2
+
+2.two-sample t-test,
+The two-sample T test is to test whether the differences between the mean of two samples and the populations they represent are significant.The two-sample T test is divided into two cases. One is independent sample T test (there is no correlation between experimental treatment groups, that is, independent samples), which is used to test the difference of data obtained by two groups of unrelated samples.
+
+3.Sample standard deviation, Sample mean，Number of samples
+
+## Question
+A—21051—2021—10-21
+Repeat Examples 6.8 and 6.10 for Mardia’s multivariate skewness test. Mardia [187] proposed tests of multivariate normality based on multivariate generalizations of skewness and kurtosis.
+
+## Answer
+Select dimension = 5,critical values cv is Quantile of chisquare distribution with
+d(d + 1)(d + 2)/6 degrees of freedom multiply 6/n.
+
+```{r}
+k = 5
+n <- c(10, 20, 30, 50, 100, 500) #sample sizes
+cv = qchisq(.95,k*(k+1)*(k+2)/6)*6/n
+cv
+sk <- function(x) {
+  #computes the sample skewness coeff.
+  xbar <- colMeans(x)
+  xbara = rbind(xbar,xbar)
+  for (l in 1:(dim(x)[1] - 2)){
+    xbara = rbind(xbara,xbar)
+  }
+  ep = cov(x)
+  B = (x - xbara)%*%solve(ep)%*%t(x - xbara)
+  b = mean(B^3)
+  return( b )
+}
+p.reject <- numeric(length(n))
+m <- 10000
+for (i in 1:length(n)) {
+  sktests <- numeric(m)
+  for (j in 1:m) {
+    x = matrix(rnorm(n[i]*k),n[i],k)
+    sktests[j] <- as.integer(abs(sk(x)) >= cv[i] )
+  }
+  p.reject[i] <- mean(sktests) #proportion rejected
+}
+p.reject
+
+
+alpha <- .1
+n <- 30
+m <- 2500
+epsilon <- c(seq(0, .15, .01), seq(.15, 1, .05))
+N <- length(epsilon)
+pwr <- numeric(N)
+#critical value for the skewness test
+cv = qchisq(1-alpha,k*(k+1)*(k+2)/6)*6/n
+for (j in 1:N) { #for each epsilon
+  e <- epsilon[j]
+  sktests <- numeric(m)
+  for (i in 1:m) { #for each replicate
+    sigma <- sample(c(1, 10), replace = TRUE,
+    size = n*k, prob = c(1-e, e))
+    #x <- rnorm(n, 0, sigma)
+    #for (i in 1:(k-1)){
+    #  x = rbind(x,rnorm(n, 0, sigma))
+    #}
+    #x = t(x)
+    x = matrix(rnorm(n*k,0,sigma),n,k)
+    sktests[i] <- as.integer(abs(sk(x)) >= cv)
+  }
+  pwr[j] <- mean(sktests)
+}
+#plot power vs epsilon
+plot(epsilon, pwr, type = "b",
+xlab = bquote(epsilon), ylim = c(0,1))
+abline(h = .1, lty = 3)
+se <- sqrt(pwr * (1-pwr) / m) #add standard errors
+lines(epsilon, pwr+se, lty = 3)
+lines(epsilon, pwr-se, lty = 3)
+```
+
+
+## Question
+A—21051—2021—10-28
+7.7 Refer to Exercise 7.6. Efron and Tibshirani discuss the following example [84,Ch. 7]. The five-dimensional scores data have a 5 × 5 covariance matrix Σ,with positive eigenvalues λ1 > · · · > λ5. In principal components analysis，Compute the sample estimate
+
+## Answer
+
+
+```{r}
+library(boot)
+library(bootstrap)
+data(scor, package = "bootstrap") 
+B <- 200 #number of replicates
+n <- 88 #sample size
+theta.B <- numeric(B) #storage for replicates
+PC <- function(scor){
+  co = cov(scor)
+  eig = eigen(co)
+  eig = eig$val
+  p = eig[1]/sum(eig)
+  p
+}
+for (b in 1:B) {
+  #randomly select the indices
+  i <- sample(1:n, size = n, replace = TRUE)
+  scor.b <- scor[i,1:5]
+  theta.B[b] = PC(scor.b)
+}
+mean(theta.B) # estimate
+
+sd(theta.B) # Standard Error
+
+bias = mean(theta.B) - PC(scor)
+bias
+```
+
+## Question
+7.8 Refer to Exercise 7.7. Obtain the jackknife estimates of bias and standard
+error
+
+## Answer
+
+
+```{r}
+
+n <- 88 #sample size
+theta <- numeric(n) #storage for replicates
+PC <- function(scor){
+  co = cov(scor)
+  eig = eigen(co)
+  eig = eig$val
+  p = eig[1]/sum(eig)
+  p
+}
+for (i in 1:n) {
+  #randomly select the indices
+  scor.jack <- scor[-i,1:5]
+  theta[i] = PC(scor.jack)
+}
+
+mean(theta) # estimate
+
+se <- sqrt((n-1) *mean((theta - mean(theta))^2)) # Standard Error
+se
+
+bias = (n-1)*(mean(theta) - PC(scor))
+bias
+```
+
+
+## Question
+7.9 Refer to Exercise 7.7. Compute 95% percentile and BCa confidence intervals
+
+## Answer
+
+
+```{r}
+theta.boot <- function(scor, ind) {
+#function to compute the statistic
+scor.b = scor[ind,1:5]
+PC(scor.b)
+}
+
+boot.obj <- boot(scor, statistic = theta.boot, R = 88)
+
+print(boot.ci(boot.obj,
+type = c("perc","bca")))
+```
+
+## Question
+7.B Repeat Project 7.A for the sample skewness statistic. Compare the coverage
+rates for normal populations (skewness 0) and χ2(5) distributions (positive
+skewness).
+
+## Answer
+
+
+```{r}
+theta.boot <- function(x, ind) {
+#function to compute the statistic
+x.b = x[ind]
+mean(x.b)
+}
+int <- function(x){
+boot.obj <- boot(x, statistic = theta.boot, R = 1000)
+
+I = boot.ci(boot.obj,
+type = c("basic", "norm","perc"))
+
+I[4]$percent[4]
+
+n = 1000
+B = 1000
+p1 = numeric(1000)
+p2 = numeric(1000)
+p3 = numeric(1000)
+pl1 = numeric(1000)
+pl2 = numeric(1000)
+pl3 = numeric(1000)
+pr1 = numeric(1000)
+pr2 = numeric(1000)
+pr3 = numeric(1000)
+for (b in 1:B) {
+  #randomly select the indices
+  i <- sample(1:n, size = n, replace = TRUE)
+  x.b <- mean(x[i])
+  if (x.b > I[6]$percent[4] && x.b < I[6]$percent[5]){
+    p3[b] = 1
+  }
+  if (x.b < I[6]$percent[4]){
+    pl3[b] = 1
+  }
+  if (x.b > I[6]$percent[5]){
+    pr3[b] = 1
+  }
+  if (x.b > I[4]$normal[2] && x.b < I[4]$normal[3]){
+    p1[b] = 1
+  }
+  if (x.b < I[4]$normal[2]){
+    pl1[b] = 1
+  }
+  if (x.b > I[4]$normal[3]){
+    pr1[b] = 1
+  }
+  if (x.b > I[5]$basic[4] && x.b < I[5]$basic[5]){
+    p2[b] = 1
+  }
+    if (x.b < I[5]$basic[4]){
+    pl2[b] = 1
+  }
+  if (x.b > I[5]$basic[5]){
+    pr2[b] = 1
+  }
+}
+mar<-c(mean(p1), mean(pl1),mean(pr1),mean(p2), mean(pl2),mean(pr2),mean(p3), mean(pl3),mean(pr3))
+p<-matrix(mar,nrow=3,byrow=T)
+colnames(p)<-c("in","left","right")
+rownames(p)<-c("normal","basic","percent")
+p
+}
+```
+normal distributions 
+```{r}
+x = rnorm(1000)
+int(x)
+```
+Chi-square distribution
+```{r}
+x = rchisq (1000, 5)
+int(x)
+```
+The Chi-squared distribution has about the same number on the right and the same number on the left, and the probability of being in the confidence interval is lower than the normal distribution
+
+A—21051—2021—11-04
+
+## Question
+8.2 Implement the bivariate Spearman rank correlation test for independence
+[255] as a permutation test. The Spearman rank correlation test statistic can be obtained from function cor with method = "spearman". Compare the
+achieved significance level of the permutation test with the p-value reported
+by cor.test on the same samples.
+
+## Answer
+
+
+```{r}
+n1 = 10
+n2 = 10
+K <- 1:(n1+n2)
+x = rnorm(n1)
+y = runif(n2)
+D0 <- cor(x,y,method = "spearman")
+R <- 999
+z <- c(x, y)
+D <- numeric(R)
+for (i in 1:R) {
+  k <- sample(K, size = n1, replace = FALSE)
+  x1 <- z[k]
+  y1 <- z[-k] #complement of x1
+  D[i] <- cor(x1,y1,method = "spearman")
+}
+p <- mean(c(D0, D) >= D0)
+p
+
+cor.test(x,y,method = "spearman")
+```
+
+## Question
+
+Design experiments for evaluating the performance of the NN,
+energy, and ball methods in various situations.
+
+## Answer
+
+
+```{r}
+library(FNN)
+library(Ball)
+library(energy)
+library(boot)
+R = 999
+d <- 3
+a <- 2 / sqrt(d)
+x <- matrix(rnorm(20 * d), nrow = 20, ncol = d)
+y <- matrix(rnorm(10 * d, a, 1), nrow = 10, ncol = d)
+z <- rbind(x, y)
+dst <- as.matrix(dist(z))
+
+Tn3 <- function(z, ix, sizes) {
+  n1 <- sizes[1]
+  n2 <- sizes[2]
+  n <- n1 + n2
+  z <- z[ix, ]
+  o <- rep(0, NROW(z))
+  z <- as.data.frame(cbind(z, o))
+  NN <- get.knn(z)$nn.index
+  block1 <- NN[1:n1, ]
+  block2 <- NN[(n1+1):n, ]
+  i1 <- sum(block1 < n1 + .5)
+  i2 <- sum(block2 > n1 + .5)
+  return((i1 + i2) / (3 * n))
+}
+
+NN <- function(x,y){
+  z <- rbind(x, y)
+  N = c(dim(x)[1],dim(y)[1])
+  boot.obj <- boot(data = z, statistic = Tn3,
+  sim = "permutation", R = 999, sizes = N)
+  tb <- c(boot.obj$t, boot.obj$t0)
+  mean(tb >= boot.obj$t0)
+}
+
+En <- function(x,y){
+  z <- rbind(x, y)
+  dst = dist(z)
+  eqdist.etest(dst, sizes=c(dim(x)[1], dim(y)[1]), distance=TRUE, R = R)$p
+}
+
+ball <- function(x,y){
+  z <- rbind(x, y)
+  n1 = dim(x)[1]
+  n2 = dim(y)[1]
+  K <- 1:(n1+n2)
+  D0 <- bcov(x,y)
+  R <- 999
+  D <- numeric(R)
+  for (i in 1:R) {
+    k <- sample(K, size = n1, replace = FALSE)
+    x1 <- z[k,1:3]
+    y1 <- z[-k,1:3] #complement of x1
+    D[i] <- bcov(x1,y1)
+  }
+  p <- mean(c(D0, D) >= D0)
+  p
+}
+```
+
+1.Unequal variances and equal expectations
+
+```{r}
+a = 1.5
+x = matrix(rnorm(20 * d), nrow = 20, ncol = d)
+y = matrix(rnorm(20 * d, 0, a), nrow = 20, ncol = d)
+
+NN(x,y)
+En(x,y)
+ball(x,y)
+```
+
+2.Unequal variances and unequal expectations
+
+```{r}
+a = 1.2
+b = 0.8
+x = matrix(rnorm(20 * d), nrow = 20, ncol = d)
+y = matrix(rnorm(20 * d, b, a), nrow = 20, ncol = d)
+
+NN(x,y)
+En(x,y)
+ball(x,y)
+```
+
+3.1.Non-normal distributions: t distribution with 1 df (heavy-tailed distribution), bimodel distribution (mixture of two normal distributions)
+
+
+```{r}
+k = 1
+b = 0.3
+x = matrix(rt(20 * d, df = 1), nrow = 20, ncol = d)
+a = (runif(20 * d)>b)*k
+y = matrix(rnorm(20 * d, a), nrow = 20, ncol = d)
+
+NN(x,y)
+En(x,y)
+ball(x,y)
+```
+
+
+4.Unbalanced samples (say, 1 case versus 10 controls)
+
+```{r}
+a = 5
+x = matrix(rnorm(2 * d), nrow = 2, ncol = d)
+y = matrix(rnorm(20 * d), nrow = 20, ncol = d)
+
+NN(x,y)
+En(x,y)
+#ball(x,y)
+```
+
+## Question
+A—21051—2021—11-18
+11.3
+## Answer
+(a) Write a function to compute the kth term
+
+```{r}
+
+fk <- function(a,k){
+d = length(a)
+l = sum(a^2)
+lx1 = -k*log(2) - lgamma(k+1) 
+lx2 = lgamma((d+1)/2) + lgamma(k+1.5) - lgamma(d/2+k+1)
+lx3 = (k+1)*log(l) 
+(-1)^k * exp(lx1 + lx2 + lx3) / (2 * k + 1) / (2 * k + 2)
+}
+
+fk(c(1,2),200)
+
+fk(c(1,2),1000)
+
+fk(c(1,2),10000)
+```
+
+(b) Modify the function so that it computes and returns the sum.
+
+```{r}
+sumf <- function(a,n){
+s = 0
+for (k in 1:n){
+  s = s+ fk(a,k) 
+}
+s
+}
+
+```
+
+(c) Evaluate the sum when a = (1, 2)T .
+```{r}
+a = c(1,2)
+sumf(a,1000)
+```
+
+## Question
+11.5
+
+## Answer
+
+
+```{r}
+
+
+ck <- function(k,a){
+  c = a^2 * k /(k+1-a^2)
+  sqrt(c)
+}
+
+gk <- function(k){
+  2 *exp(lgamma((k+1)/2)-lgamma(k/2)) /sqrt(pi * k)
+}
+
+myk <- function(k,a){
+  ink <- function(u){
+  (1+u^2 / k) ^(-(k+1)/2)
+  }
+  gk(k) * integrate(ink, 0, ck(k,a))$value
+}
+
+f <- function(k,a){
+  myk(k-1,a)/myk(k,a)-1
+}
+
+
+k = 4
+
+solu <- function(k){
+eps <- 10^-8
+b0 <- 1
+b1 <- 2
+it = 0
+r <- seq(b0, b1, length=3)
+y <- c(f(k,r[1]), f(k,r[2]), f(k,r[3]))
+
+while(it < 1000 && abs(y[2]) > eps) {
+it <- it + 1
+if (y[1]*y[2] < 0) {
+r[3] <- r[2]
+y[3] <- y[2]
+} else {
+r[1] <- r[2]
+y[1] <- y[2]
+}
+r[2] <- (r[1] + r[3]) / 2
+y[2] <- f(k,r[2])
+}
+print(c(r[1]))
+}
+
+
+s <- function(k,a){
+  1 - pt(sqrt(a^2*k/(k+1-a^2)),k)
+}
+
+y2 <- function(k,a){
+  s(k+1,a)/s(k,a) -1
+}
+
+for (k in c(4,25,100,1000)){
+q = solu(k)
+t = 0:200/200 +1
+plot(t,s(k,t),type="l")
+lines(t,s(k-1,t))
+#plot(t,s(k,t)-s(k-1,t),type="l")
+points(q,s(k,q),col="green")
+}
+```
+
+
+## Question
+Use the E-M algorithm to estimate A, compare your result with the observed data MLE (note: Y; follows a mixture distribution) 
+
+## Answer
+EM: The known value is x1, and the unknown value is x2,start by estimating the parameters with all the values 
+$$1/\lambda = k/\sum(x_i)$$
+Then estimate the expectation of the unknown value
+$$ x3 =  (1/\lambda +1)/ 1/\lambda$$
+then replace x2 with x3
+
+```{r}
+x1 = c(0.54,0.48,0.33,0.43,0.91,0.21,0.85)
+k1 = length(x1)
+x2 = c(1,1,1)
+k2 = length(x2)
+N = 1000
+for (i in 1:N){
+  k = k1 + k2
+  x = c(x1,x2)
+  lam = k/sum(x)
+  x3 = (lam+1)/lam
+  x2 = c(x3,x3,x3)
+}
+1/lam
+```
+MLE:
+$$1/\lambda = k1/(k2+\sum x1)$$
+
+where K1 is the number of known values and k2 is the number of unknown values
+```{r}
+lam_mle = (sum(x1)+3)/k1
+lam_mle
+```
+Both methods give the same result
+
+## Question
+21051—2021—11-18
+11.1. Why are the following two invocations of lapply() equivalent?
+## Answer
+lapply(trims, function(trim) mean(x, trim = trim)) substitute each element of trims into the function trim, lapply(trims, mean, x = x) set x to the first parameter of function mean, substitute the trims into the second parameter of function mean, so that equivalent.
+
+```{r}
+trims <- c(0, 0.1, 0.2, 0.5)
+x <- rcauchy(100)
+lapply(trims, function(trim) mean(x, trim = trim))
+lapply(trims, mean, x = x)
+
+```
+
+
+
+## Question
+11.5 For each model in the previous two exercises, extract R2 using the function below.
+
+## Answer
+
+
+```{r}
+rsq <- function(mod) summary(mod)$r.squared
+
+mpg = mtcars$mpg
+disp = mtcars$disp
+wt = mtcars$wt
+
+formulas <- list(
+mpg ~ disp,
+mpg ~ I(1 / disp),
+mpg ~ disp + wt,
+mpg ~ I(1 / disp) + wt
+)
+
+r <- function(x){
+  rsq(lm(x))
+}
+lapply(formulas,r)
+
+
+bootstraps <- lapply(1:10, function(i) {
+rows <- sample(1:nrow(mtcars), rep = TRUE)
+mtcars[rows, ]
+})
+
+r2 <- function(boot){
+  mpg = boot$mpg
+  disp = boot$disp
+  rsq(lm(mpg ~ disp))
+}
+
+lapply(bootstraps,r2)
+```
+
+
+
+## Question
+11.2.1. Use vapply() to:
+a) Compute the standard deviation of every column in a numeric data frame.
+b) Compute the standard deviation of every numeric column
+in a mixed data frame. (Hint: you’ll need to use vapply()
+twice.)
+
+## Answer
+
+
+```{r}
+df <- data.frame(x = 1:10, y = 1:10)
+vapply(df, sd, double(1))
+
+df2 <- data.frame(x = 1:10, y = 1:10, z = letters[1:10])
+
+
+num <- function(x){
+  if (class(x) == "integer"){
+    return(sd(x))
+  }else{return(0)}
+}
+
+vapply(df2, num, double(1))
+```
+
+## Question
+11.2.7. Implement mcsapply(), a multicore version of sapply(). Can you implement mcvapply(), a parallel version of vapply()?
+Why or why not?
+
+## Answer
+mcsapply is equivalent to function parSapply
+I can not implement mcvapply(), because will error when Multicores vapply.
+```{r}
+library(parallel)
+
+mcsapply <-function(cl = NULL, X, FUN){
+  parSapply(cl = NULL, X, FUN)
+}
+
+boot_df <- function(x) x[sample(nrow(x), rep = T), ]
+rsquared <- function(mod) summary(mod)$r.square
+boot_lm <- function(i) {
+dat <- boot_df(mtcars)
+rsquared(lm(mpg ~ wt + disp, data = dat))
+}
+
+n <- 1e2
+system.time(sapply(1:n, boot_lm))
+#system.time(cl = NULL,mcsapply(1:n, boot_lm))
+```

@@ -21,6 +21,9 @@ devtools::build(vignettes=TRUE)
 install.packages('../StatComp_0.0.0.9000.tar.gz',vignettes=TRUE,repo=NULL)
 install.packages('../StatComp21051_0.0.0.9000.tar.gz',vignettes=TRUE,repo=NULL)
 
-library(StatComp)
+library(StatComp21051)
 
 ?StatComp-package
+
+devtools::install_github("wzz1999/statcomp21051",build_vignettes = TRUE, force=T)
+devtools::install_github("wzz1999/statcomp21051", force=T)
